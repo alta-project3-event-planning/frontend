@@ -50,20 +50,18 @@ function Signup() {
         )
         .then((response) => response.json())
         .then((result) => {
-            const { code, message, data } = result;
+            const { code, message } = result;
             if (code === 200) {
-                // const { token } = data;
-                // localStorage.setItem("token", token);
-                // setToken(token);
-                // router.push("/");
+                Swal.fire({
+                    icon: 'Success',
+                    title: message
+                });
             } else if (code === 400) {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Oops...',
-                    text: err
+                    title: message
                 });
             }
-            // alert(message);
         })
         .catch((err) => {
             console.log(err)
@@ -119,8 +117,8 @@ function Signup() {
                         <meta name="theme-color" content="#000000" />
                         <meta name="description" content="Web site created using create-react-app" />
                     </Head>
-                    <div className="flex min-h-screen w-screen">
-                        <div className="basis-1/2 relative">
+                    <div className="flex flex-col xl:flex-row min-h-screen w-screen">
+                        <div className="xl:basis-1/2 relative h-[20vh] xl:h-screen">
                             <Image
                                 src="http://source.unsplash.com/74tlEYKgrBE"
                                 alt="shit"
