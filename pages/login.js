@@ -39,20 +39,19 @@ function Login() {
             body: JSON.stringify(body),
         };
         fetch(
-            "https://my-json-server.typicode.com/Maruta45/mockjson/auth",
+            "https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/login",
             requestOptions
         )
         .then((response) => response.json())
-        .then((result) => {
+            .then((result) => {
+            console.log(result)
             const { code, message, data } = result;
             if (code === 200) {
-                // const { token } = data;
-                // localStorage.setItem("token", token);
-                // setToken(token);
-                // router.push("/");
-            }
-            // alert(message);
-            if (code === 400) {
+                const { token } = data;
+                localStorage.setItem("token", token);
+                setToken(token);
+                router.push("/");
+            } else if (code === 400) {
                 Swal.fire({
                     icon: 'error',
                     title: 'Oops...',
@@ -113,8 +112,8 @@ function Login() {
                         <meta name="theme-color" content="#000000" />
                         <meta name="description" content="Web site created using create-react-app" />
                     </Head>
-                    <div className="flex min-h-screen w-screen">
-                        <div className="basis-1/2 relative">
+                    <div className="flex flex-col xl:flex-row min-h-screen w-screen">
+                        <div className="xl:basis-1/2 relative h-[20vh] xl:h-screen">
                             <Image
                                 src="http://source.unsplash.com/74tlEYKgrBE"
                                 alt="shit"
@@ -125,16 +124,16 @@ function Login() {
                         </div>
                         <div className="basis-1/2 flex justify-center items-center">
                             <div className="text-center flex flex-col gap-10">
-                                <p className="font-bold text-4xl">
+                                <div className="font-bold text-4xl">
                                     <div className="text-left font-bold -skew-y-6 text-sky-500 italic my-2 cursor-pointer text-2xl">
                                         <Link href={'/'}>SOUNDFEST</Link>
                                     </div>
                                     Login
-                                </p>
+                                </div>
                                 <div className="text-right flex flex-col gap-4">
                                     <div>
                                         <span className="mr-4">Email</span>
-                                        <input type={"text"} value={email} onChange={(e) => handleChange(e, 'email')} className="border-[0.1rem] rounded p-2" placeholder="email@mail.com"></input>
+                                        <input type={"email"} value={email} onChange={(e) => handleChange(e, 'email')} className="border-[0.1rem] rounded p-2" placeholder="email@mail.com"></input>
                                         {isEmailError && <p className='text-xs text-red-600'>*Please check your email again</p>}
                                     </div>
                                     <div>

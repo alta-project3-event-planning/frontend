@@ -93,7 +93,7 @@ export default function MyEvent() {
 										</div>
 									</div>
 									<div className='flex flex-col justify-center items-center space-y-4'>
-										<button className='bg-sky-500 hover:bg-sky-600 text-white py-2 w-36' onClick={() => router.push(`/edit/${item.id_event}`)}>
+										<button className='bg-sky-500 hover:bg-sky-600 text-white py-2 w-36' onClick={() => router.push(`/editevent/${item.id_event}`)}>
 											Edit Event
 										</button>
 										<button className='bg-red-500 hover:bg-red-600 text-white py-2 w-36' onClick={() => handleDelete(item.id_event)}>
