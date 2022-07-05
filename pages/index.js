@@ -25,7 +25,6 @@ export default function Home({ data }) {
 		fetch('https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/events', requestOptions)
 			.then((response) => response.json())
 			.then((data) => {
-				console.log(data);
 				setCurrentTime(data.currentTime);
 				setDataEvents(data.data);
 			})
@@ -44,7 +43,7 @@ export default function Home({ data }) {
 			<Layout headTitle={'Sound Fest'} headDesc={'Sound Festive'}>
 				<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 sm:p-8'>
 					{dataEvents.map((item) => {
-						return <CardEvent key={item.id_event} name={item.name} hosted_by={item.hosted_by} date={item.date} location={item.location} onClickEvent={() => router.push(`event/${item.id}`)} />;
+						return <CardEvent key={item.id_event} name={item.name} hosted_by={item.hosted_by} date={item.date} location={item.location} id_event={item.id_event} onClickEvent={() => router.push(`event/${item.id}`)} />;
 					})}
 				</div>
 			</Layout>
