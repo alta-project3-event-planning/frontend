@@ -4,9 +4,9 @@
  */
 
 const nextConfig = {
-	reactStrictMode: false,
+	reactStrictMode: true,
 	images: {
-		domains: ['images.unsplash.com'],
+		domains: ['images.unsplash.com', 'source.unsplash.com'],
 	},
 };
 

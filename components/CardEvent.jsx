@@ -14,7 +14,7 @@ export default function CardEvent({ image, name, hosted_by, date, location, onCl
 			</p>
 			<p>
 				<span>Date : </span>
-				{moment(date).format('dddd')}
+				{date}
 				{/* {moment(date).format('dddd')}, {moment(date).add(10, 'days').calendar()} */}
 			</p>
 			<p>Location : {location}</p>

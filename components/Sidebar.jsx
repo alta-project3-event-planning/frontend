@@ -4,8 +4,8 @@ import Link from 'next/link';
 
 export default function Sidebar() {
 	return (
-		<div className='w-1/4'>
-			<ul className='flex flex-col space-y-4 sm:px-6'>
+		<div className='sm:w-1/4 mb-8'>
+			<ul className='flex sm:flex-col justify-around py-2 sm:py-0 sm:space-y-4 sm:px-6'>
 				<Link href='/profile'>
 					<a>Profile</a>
 				</Link>
