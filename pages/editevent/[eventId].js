@@ -1,17 +1,17 @@
-import { useState, useMemo } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { useRouter } from "next/router"
-import Layout from "../components/Layout"
-import Sidebar from "../components/Sidebar"
-import Loading from "../components/Loading"
 import dynamic from "next/dynamic"
-import Swal from "sweetalert2";
+import Layout from "../../components/Layout"
+import Sidebar from "../../components/Sidebar"
+import Loading from "../../components/Loading"
+import Swal from "sweetalert2"
 
-const Createevent = () => {
-    
+const Updateevent = () => {
     const router = useRouter()
-
+    const { eventId } = router.query
+    
     const Map = useMemo(() => dynamic(
-        () => import('../components/Map'), // replace '@components/map' with your component's location
+        () => import('../../components/Map'), // replace '@components/map' with your component's location
         { 
             loading: () => <p>A map is loading</p>,
             ssr: false // This line is important. It's what prevents server-side render
@@ -26,9 +26,52 @@ const Createevent = () => {
     const [date,setDate] = useState("")
     const [detail,setDetail] = useState("")
     const [location,setLocation] = useState("Malang")
-    const [position,setPosition] = useState([-7.966620,112.632629])
+    const [position, setPosition] = useState([-7.966620, 112.632629])
+    const [loading,setLoading] = useState(true)
     
-    const postEvent = () => {
+    useEffect(() => {
+        getEvent()
+    }, [])
+    
+    const getEvent = async () => {
+		const requestOptions = {
+			method: 'GET',
+			headers: { 'Content-Type': 'application/json' },
+		};
+
+		fetch(`https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/events/${eventId}`, requestOptions)
+			.then((response) => response.json())
+            .then((result) => {
+                const { code, message, data } = result;
+                if (code === 200) {
+                    const dateEvent = new Date(data.date);
+                    dateEvent.setMinutes(dateEvent.getMinutes() - dateEvent.getTimezoneOffset());
+                    
+                    setPoster(data.image_url)
+                    setSrcPoster(data.image_url)
+                    setName(data.name)
+                    setHost(data.hostedby)
+                    setPerformers(data.hostedby)
+                    setDate(dateEvent.toISOString().slice(0,16))
+                    setDetail(data.details)
+                    setLocation(data.city)
+
+                } else if(code === 400) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: message
+                    });
+                }
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+			.finally(() => {
+				setLoading(false);
+			});
+    };
+
+    const putEvent = () => {
         const body = {
             "image_url" : poster,
             "name" : name,
@@ -40,12 +83,12 @@ const Createevent = () => {
             "location" : position.join()
         };
         var requestOptions = {
-            method: "POST",
+            method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
         };
         fetch(
-            "https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/events",
+            `https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/events/${eventId}`,
             requestOptions
         )
         .then((response) => response.json())
@@ -119,7 +162,7 @@ const Createevent = () => {
 
         if (passed === 8) {
             setLoading(true)
-            postEvent()
+            putEvent()
         } else {
             Swal.fire({
                 icon: 'error',
@@ -138,7 +181,7 @@ const Createevent = () => {
                     <Sidebar />
                     <div className="w-full p-2">
                         <p className="font-bold text-xl mb-4">
-                            Create Event
+                            Update Event
                         </p>
                         <div className="pr-20">
                             <div className="flex flex-row my-2 items-center">
@@ -147,7 +190,7 @@ const Createevent = () => {
                                 </label>
                                 <div className="basis-5/6 ">
                                     <div className="flex items-end border-[0.1rem] rounded p-2 w-full gap-2">
-                                        {poster !== "" && (<img src={srcPoster} alt="shit" className="w-48" />)}
+                                        {poster !== "" && (<img src={srcPoster} alt="this is image" className="w-48" />)}
                                         <input type={"file"} onChange={(e) => handleChange(e, "poster")} ></input>
                                     </div>
                                 </div>
@@ -207,7 +250,7 @@ const Createevent = () => {
                                 <b>Lat</b>{position[0]}<b>Lng.</b> {position[1]}
                             </div>
                             <div className="flex flex-row my-5 mb-10 items-center justify-end">
-                                <button className="font-bold py-2 px-20 bg-sky-500 hover:bg-sky-700 text-white rounded" onClick={() => handleSubmit()}>Save Event</button>
+                                <button className="font-bold py-2 px-20 bg-sky-500 hover:bg-sky-700 text-white rounded" onClick={() => handleSubmit()}>Save Change</button>
                             </div>
                         </div>
                     </div>
@@ -216,5 +259,4 @@ const Createevent = () => {
         )
     }
 }
-
-export default Createevent
+export default Updateevent
