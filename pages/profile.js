@@ -12,7 +12,7 @@ export default function Profile() {
 	const router = useRouter();
 	const [loading, setLoading] = useState(true);
 	const [profile, setProfile] = useState({});
-	const [Name, setName] = useState('');
+	const [name, setName] = useState('');
 	const [Email, setEmail] = useState('');
 	const [Password, setPassword] = useState('');
 
@@ -70,7 +70,7 @@ export default function Profile() {
 
 	const handleUpdateProfile = () => {
 		const body = {
-			name: Name,
+			name: name,
 			email: Email,
 			password: Password,
 		};
@@ -102,7 +102,7 @@ export default function Profile() {
 		return <Loading />;
 	} else {
 		return (
-			<Layout>
+			<Layout headTitle={`Profile - ${profile.name}`} headDesc={'Edit your profile'}>
 				<div className='w-full flex flex-col sm:flex-row mt-12'>
 					<Sidebar />
 					<div className='w-full'>

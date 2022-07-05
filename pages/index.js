@@ -22,7 +22,7 @@ export default function Home({ data }) {
 			headers: { 'Content-Type': 'application/json' },
 		};
 
-		fetch('https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/events', requestOptions)
+		fetch('http://44.208.20.97:80/events', requestOptions)
 			.then((response) => response.json())
 			.then((data) => {
 				setCurrentTime(data.currentTime);
@@ -43,7 +43,19 @@ export default function Home({ data }) {
 			<Layout headTitle={'Sound Fest'} headDesc={'Sound Festive'}>
 				<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 sm:p-8'>
 					{dataEvents.map((item) => {
-						return <CardEvent key={item.id_event} name={item.name} hosted_by={item.hosted_by} date={item.date} location={item.location} id_event={item.id_event} onClickEvent={() => router.push(`event/${item.id}`)} />;
+						return (
+							<CardEvent
+								key={item.id_event}
+								name={item.name}
+								hosted_by={item.hostedby}
+								performers={item.performers}
+								image={item.image_url}
+								date={item.date}
+								location={item.location}
+								id_event={item.id_event}
+								onClickEvent={() => router.push(`detail/${item.id_event}`)}
+							/>
+						);
 					})}
 				</div>
 			</Layout>

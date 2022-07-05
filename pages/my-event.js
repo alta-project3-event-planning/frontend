@@ -70,7 +70,7 @@ export default function MyEvent() {
 		return <Loading />;
 	} else {
 		return (
-			<Layout>
+			<Layout headTitle={'My Events'} headDesc={'List of my events'}>
 				<div className='w-full flex flex-col sm:flex-row mt-12'>
 					<Sidebar />
 					<div>
