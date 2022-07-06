@@ -2,16 +2,18 @@
 
 import moment from 'moment';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState,useContext } from 'react';
 import Swal from 'sweetalert2';
 import Layout from '../components/Layout';
 import Loading from '../components/Loading';
 import Sidebar from '../components/Sidebar';
 import Link from 'next/link';
 import { TiPlus } from 'react-icons/ti';
+import { TokenContext } from '../utils/context';
 
 export default function MyEvent() {
 	const router = useRouter();
+	const {token} = useContext(TokenContext)
 	const [loading, setLoading] = useState(true);
 	const [myEvents, setMyEvents] = useState([]);
 
@@ -22,12 +24,16 @@ export default function MyEvent() {
 	const fetchData = async () => {
 		const requestOptions = {
 			method: 'GET',
-			headers: { 'Content-Type': 'application/json' },
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${token}`
+			},
 		};
 
-		fetch('https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/myevents', requestOptions)
+		fetch('https://infinitysport.site/myevents?page=1', requestOptions)
 			.then((response) => response.json())
 			.then((data) => {
+				console.log(data.data)
 				setMyEvents(data.data);
 			})
 			.catch((error) => {

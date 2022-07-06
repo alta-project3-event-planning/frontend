@@ -22,7 +22,7 @@ export default function Home({ data }) {
 			headers: { 'Content-Type': 'application/json' },
 		};
 
-		fetch('http://44.208.20.97:80/events', requestOptions)
+		fetch('https://infinitysport.site/events?page=1', requestOptions)
 			.then((response) => response.json())
 			.then((data) => {
 				setCurrentTime(data.currentTime);

@@ -1,15 +1,18 @@
 /** @format */
 import Swal from 'sweetalert2';
-import { useEffect, useState } from 'react';
+import { useEffect, useState,useContext } from 'react';
 import { useRouter } from 'next/router';
 import { CgProfile } from 'react-icons/cg';
 
 import Loading from '../components/Loading';
 import Layout from '../components/Layout';
 import Sidebar from '../components/Sidebar';
+import { TokenContext } from '../utils/context';
 
 export default function Profile() {
 	const router = useRouter();
+
+	const {token} = useContext(TokenContext)
 	const [loading, setLoading] = useState(true);
 	const [profile, setProfile] = useState({});
 	const [name, setName] = useState('');
@@ -25,10 +28,11 @@ export default function Profile() {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${token}`
 			},
 		};
 
-		fetch('https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/users', requestOptions)
+		fetch('https://infinitysport.site/users', requestOptions)
 			.then((response) => response.json())
 			.then((data) => {
 				setProfile(data.data);

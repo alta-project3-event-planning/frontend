@@ -37,7 +37,7 @@ function Signup() {
         const body = {
             name,
             email,
-            password:'',
+            password,
         };
         var requestOptions = {
             method: "POST",
@@ -55,8 +55,10 @@ function Signup() {
             const { code, message } = result;
             if (code === '200') {
                 Swal.fire({
-                    icon: 'Success',
+                    icon: 'success',
                     title: message
+                }).then(() => {
+                    router.push('/login')
                 });
             } else if (code === '404') {
                 Swal.fire({
