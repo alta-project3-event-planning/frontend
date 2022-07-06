@@ -28,33 +28,27 @@ function Login() {
         }
     }
 
-    const postLogin = () => {
-        const body = {
-            email,
-            password,
-        };
+    const postLogin = async () => {
+        const body = { email, password };
         var requestOptions = {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
         };
         fetch(
-            "https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/login",
-            requestOptions
+            "https://infinitysport.site/login", requestOptions
         )
         .then((response) => response.json())
             .then((result) => {
-            console.log(result)
-            const { code, message, data } = result;
-            if (code === 200) {
-                const { token } = data;
+            const { message,token } = result;
+            if (message === "success") {
                 localStorage.setItem("token", token);
                 setToken(token);
                 router.push("/");
-            } else if (code === 400) {
+            } else {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Oops...',
+                    title: 'failed to login',
                     text: message
                 });
             }
