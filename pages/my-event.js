@@ -2,7 +2,7 @@
 
 import moment from 'moment';
 import { useRouter } from 'next/router';
-import { useEffect, useState,useContext } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import Swal from 'sweetalert2';
 import Layout from '../components/Layout';
 import Loading from '../components/Loading';
@@ -13,7 +13,7 @@ import { TokenContext } from '../utils/context';
 
 export default function MyEvent() {
 	const router = useRouter();
-	const {token} = useContext(TokenContext)
+	const { token } = useContext(TokenContext);
 	const [loading, setLoading] = useState(true);
 	const [myEvents, setMyEvents] = useState([]);
 
@@ -26,14 +26,14 @@ export default function MyEvent() {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${token}`
+				Authorization: `Bearer ${token}`,
 			},
 		};
 
 		fetch('https://infinitysport.site/myevents?page=1', requestOptions)
 			.then((response) => response.json())
 			.then((data) => {
-				console.log(data.data)
+				console.log(data.data);
 				setMyEvents(data.data);
 			})
 			.catch((error) => {
@@ -59,9 +59,10 @@ export default function MyEvent() {
 					method: 'DELETE',
 					headers: {
 						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`,
 					},
 				};
-				fetch(`https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/events/${id_event}`, requestOptions)
+				fetch(`https://infinitysport.site/events/${id_event}`, requestOptions)
 					.then((response) => response.json())
 					.then(() => {
 						Swal.fire('Deleted!', 'Your event has been deleted.', 'success');
@@ -80,9 +81,13 @@ export default function MyEvent() {
 		return (
 			<Layout headTitle={'My Events'} headDesc={'List of my events'}>
 				<div className='w-full flex flex-col sm:flex-row mt-12'>
-					<Sidebar active="my-event"/>
+					<Sidebar active='my-event' />
 					<div>
-						<Link href="/createevent"><div className="bg-sky-500 hover:bg-sky-700 text-white text-4xl p-3 absolute bottom-[7%] right-[3%] block whitespace-no-wrap cursor-pointer rounded-full"><TiPlus /></div></Link>
+						<Link href='/createevent'>
+							<div className='bg-sky-500 hover:bg-sky-700 text-white text-4xl p-3 absolute bottom-[7%] right-[3%] block whitespace-no-wrap cursor-pointer rounded-full'>
+								<TiPlus />
+							</div>
+						</Link>
 						{myEvents.map((item) => {
 							return (
 								<div className='grid grid-cols-1 sm:grid-cols-5 gap-5' key={item.id_event}>

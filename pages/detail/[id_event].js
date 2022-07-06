@@ -1,17 +1,19 @@
 /** @format */
 import moment from 'moment';
 import { useRouter } from 'next/router';
-import { useEffect, useMemo, useState } from 'react';
+import { useContext, useEffect, useMemo, useState } from 'react';
 import { CgProfile } from 'react-icons/cg';
 import { RiSendPlaneFill } from 'react-icons/ri';
 import dynamic from 'next/dynamic';
 import Swal from 'sweetalert2';
 import Image from 'next/image';
 
+import { TokenContext } from '../../utils/context';
 import Layout from '../../components/Layout';
 import Loading from '../../components/Loading';
 
 export default function DetailEvent() {
+	const { token } = useContext(TokenContext);
 	const router = useRouter();
 	const { id_event } = router.query;
 	const [loading, setLoading] = useState(true);
@@ -60,10 +62,11 @@ export default function DetailEvent() {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
 			},
 		};
 
-		await fetch(`https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/events/comments/${id_event}`, requestConfig)
+		await fetch(`https://infinitysport.site/events/comments/${id_event}`, requestConfig)
 			.then((response) => response.json())
 			.then((data) => {
 				setComment(data.data);
@@ -79,14 +82,15 @@ export default function DetailEvent() {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
 			},
 		};
 
-		await fetch('https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/events/participations', requestConfig)
+		await fetch('https://infinitysport.site/events/participations', requestConfig)
 			.then((response) => response.json())
 			.then((data) => {
 				setParticipant(data.data);
-				setIdParticipant(data.data[0].id_participant);
+				// setIdParticipant(data.data[0].id_participant);
 			})
 			.catch((error) => {
 				console.log(error);
@@ -99,17 +103,18 @@ export default function DetailEvent() {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
 			},
 			body: JSON.stringify({
-				id_event,
+				id_event: +id_event,
 				comment: comment_text,
 			}),
 		};
 
-		await fetch('https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/events/comments', requestConfig)
+		await fetch('https://infinitysport.site/events/comments', requestConfig)
 			.then((response) => response.json())
 			.then((data) => {
-				data.code === 200 && getComments();
+				data.code === '200' && getComments();
 			})
 			.catch((error) => {
 				console.log(error);
@@ -121,20 +126,29 @@ export default function DetailEvent() {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
 			},
 			body: JSON.stringify({
 				id_event,
 			}),
 		};
 
-		await fetch('https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/events/participations', requestConfig)
+		await fetch('https://infinitysport.site/events/participations', requestConfig)
 			.then((response) => response.json())
 			.then((data) => {
-				Swal.fire({
-					title: 'Success',
-					text: `${data.message}`,
-					icon: 'success',
-				});
+				if (data.code === '200') {
+					Swal.fire({
+						title: 'Success',
+						text: `${data.message}`,
+						icon: 'success',
+					});
+				} else if (data.code === '400') {
+					Swal.fire({
+						title: 'Failed',
+						text: `${data.message}`,
+						icon: 'error',
+					});
+				}
 			})
 			.catch((error) => {
 				console.log(error);
@@ -151,18 +165,27 @@ export default function DetailEvent() {
 			method: 'DELETE',
 			headers: {
 				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
 			},
 		};
 
-		await fetch(`https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/events/participations/${id_event}`, requestOptions)
+		await fetch(`https://infinitysport.site/events/participations/${id_event}`, requestOptions)
 			.then((response) => response.json())
 			.then((data) => {
-				setIdParticipant(null);
-				Swal.fire({
-					title: 'Success',
-					text: `${data.message}`,
-					icon: 'success',
-				});
+				// setIdParticipant(null);
+				if ((data.code = '200')) {
+					Swal.fire({
+						title: 'Success',
+						text: `${data.message}`,
+						icon: 'success',
+					});
+				} else if (data.code === '400') {
+					Swal.fire({
+						title: 'Failed',
+						text: `${data.message}`,
+						icon: 'error',
+					});
+				}
 			})
 			.catch((error) => {
 				Swal.fire({
@@ -225,7 +248,10 @@ export default function DetailEvent() {
 										<div className='space-y-2 py-2 h-52 overflow-y-auto'>
 											{comment.map((item) => {
 												return (
-													<div className='bg-slate-200 hover:bg-slate-300 p-4 space-y-4 rounded-md' key={item.id_comment}>
+													<div className='bg-slate-200 hover:bg-slate-300 p-4 space-y-4 rounded-md flex items-center space-x-4' key={item.id_comment}>
+														<div className='flex items-center justify-center'>
+															<Image src={item.avatar} alt={item.name} width={'55px'} height={'55px'} className='rounded-full' />
+														</div>
 														<div>
 															<p className='font-bold text-xs sm:text-base'>{item.comment}</p>
 															<p className='text-xs sm:text-base'>{item.name}</p>
@@ -251,7 +277,7 @@ export default function DetailEvent() {
 						</div>
 						<div className='md:p-4 col-span-6 md:col-span-2 row-start-1 md:row-start-auto space-y-4'>
 							<div className='flex justify-center'>
-								<Image src={event.image_url} width='100%' height='100%' alt={event.name} />
+								<Image src={event.image_url} width={200} height={200} alt={event.name} />
 							</div>
 							<div className='flex justify-between'>
 								<h1 className='text-xl font-bold'>{event.name}</h1>

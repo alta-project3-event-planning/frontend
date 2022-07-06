@@ -16,8 +16,9 @@ export default function Profile() {
 
 	const { token } = useContext(TokenContext);
 	const [loading, setLoading] = useState(true);
+	const [userId, setUserId] = useState();
 	const [profile, setProfile] = useState({});
-	const [avatar, setAvatar] = useState('');
+	const [avatar, setAvatar] = useState('https://www.seekpng.com/png/full/966-9665317_placeholder-image-person-jpg.png');
 	const [name, setName] = useState('');
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -39,6 +40,10 @@ export default function Profile() {
 			.then((response) => response.json())
 			.then((data) => {
 				setProfile(data.data);
+				setUserId(data.data.id);
+				setName(data.data.name);
+				setEmail(data.data.email);
+				console.log(data);
 			})
 			.catch((error) => {
 				console.log(error);
@@ -63,14 +68,15 @@ export default function Profile() {
 						'Content-Type': 'application/json',
 					},
 				};
-				fetch(`https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/users/${profile.id}`, requestOptions)
+				fetch(`https://infinitysport.site/users/${userId}`, requestOptions)
 					.then((response) => response.json())
-					.then((data) => {})
+					.then((data) => {
+						Swal.fire('Deleted!', 'Your Account has been deleted.', 'success');
+					})
 					.catch((error) => {
 						console.log(error);
 					});
-				Swal.fire('Deleted!', 'Your Account has been deleted.', 'success');
-				router.push('/login');
+				// router.push('/login');
 			}
 		});
 	};
@@ -90,15 +96,23 @@ export default function Profile() {
 			body: JSON.stringify(body),
 		};
 
-		fetch('https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/users/1', requestOptions)
+		fetch(`https://infinitysport.site/users/${userId}`, requestOptions)
 			.then((response) => response.json())
-			.then(() => {
-				Swal.fire({
-					icon: 'success',
-					title: 'Your profile has been updated!',
-					showConfirmButton: false,
-					timer: 1500,
-				});
+			.then((data) => {
+				if (data.code === '200') {
+					Swal.fire({
+						icon: 'success',
+						title: 'Your profile has been updated!',
+						showConfirmButton: false,
+						timer: 1500,
+					});
+				} else if (data.code === '400') {
+					Swal.fire({
+						icon: 'error',
+						title: 'Oops...',
+						text: 'Something went wrong!',
+					});
+				}
 			})
 			.catch((error) => {
 				console.log(error);
@@ -118,9 +132,9 @@ export default function Profile() {
 						<div className='flex flex-col md:flex-row md:justify-around p-8 space-y-16 md:space-y-0'>
 							<div className='flex flex-col items-center space-y-8'>
 								<div className='flex'>
-									<Image src={'https://www.seekpng.com/png/full/966-9665317_placeholder-image-person-jpg.png'} alt='avatar' width={100} height={100} className='rounded-full' />
+									<Image src={avatar} alt='avatar' width={100} height={100} className='rounded-full' />
 									<div className='flex items-end ml-2'>
-										<input type={'file'} accept={'image/*'} id={'upload_avatar'} className='hidden' onChange={(e) => setAvatar(e.target.files[0])} />
+										<input type={'file'} accept={'image/*'} id={'upload_avatar'} className='hidden' onChange={(e) => setAvatar(URL.createObjectURL(e.target.files[0]))} />
 										<label htmlFor={'upload_avatar'} className='text-center cursor-pointer'>
 											<FaEdit />
 										</label>
@@ -131,19 +145,19 @@ export default function Profile() {
 										<label htmlFor='name' className='sm:text-xl text-end'>
 											Name :
 										</label>
-										<input type='text' name='name' id='name' placeholder={profile.name} className='col-span-3 ml-4 pl-2 border focus:outline-none focus:ring-2 focus:ring-sky-400' onChange={(e) => setName(e.target.value)} />
+										<input type='text' name='name' id='name' value={name} className='col-span-3 ml-4 pl-2 border focus:outline-none focus:ring-2 focus:ring-sky-400' onChange={(e) => setName(e.target.value)} />
 									</div>
 									<div className='grid grid-cols-4'>
 										<label htmlFor='email' className='sm:text-xl text-end'>
 											Email :
 										</label>
-										<input type='text' name='name' id='email' placeholder={profile.email} className='col-span-3 ml-4 pl-2 border focus:outline-none focus:ring-2 focus:ring-sky-400' onChange={(e) => setEmail(e.target.value)} />
+										<input type='email' name='name' id='email' value={email} className='col-span-3 ml-4 pl-2 border focus:outline-none focus:ring-2 focus:ring-sky-400' onChange={(e) => setEmail(e.target.value)} />
 									</div>
 									<div className='grid grid-cols-4'>
 										<label htmlFor='password' className='sm:text-xl text-end'>
 											Password :
 										</label>
-										<input type='text' name='name' id='password' placeholder={profile.password} className='col-span-3 ml-4 pl-2 border focus:outline-none focus:ring-2 focus:ring-sky-400' onChange={(e) => setPassword(e.target.value)} />
+										<input type='password' name='name' id='password' placeholder={'*****'} className='col-span-3 ml-4 pl-2 border focus:outline-none focus:ring-2 focus:ring-sky-400' onChange={(e) => setPassword(e.target.value)} />
 									</div>
 								</form>
 								<button className='py-2 px-16 bg-sky-400 text-white hover:bg-sky-500' onClick={() => handleUpdateProfile()}>
