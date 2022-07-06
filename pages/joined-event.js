@@ -11,7 +11,6 @@ import Link from 'next/link';
 import { TiPlus } from 'react-icons/ti';
 
 export default function MyEvent() {
-	const router = useRouter();
 	const [loading, setLoading] = useState(true);
 	const [myEvents, setMyEvents] = useState([]);
 
@@ -25,7 +24,7 @@ export default function MyEvent() {
 			headers: { 'Content-Type': 'application/json' },
 		};
 
-		fetch('https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/myevents', requestOptions)
+		fetch('https://infinitysport.site/events/participations', requestOptions)
 			.then((response) => response.json())
 			.then((data) => {
 				setMyEvents(data.data);
@@ -38,7 +37,26 @@ export default function MyEvent() {
 			});
 	};
 
-	const handleDelete = (id_event) => {
+    const deleteParticipant = (id_event) => {
+        const requestOptions = {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        };
+        fetch(`https://infinitysport.site/events/participations/${id_event}`, requestOptions)
+            .then((response) => response.json())
+            .then(() => {
+                Swal.fire('Deleted!', 'Your event has been deleted.', 'success');
+            })
+            .catch(() => {
+                Swal.fire('Error!', 'Something went wrong.', 'error');
+            }).finally(() => {
+                fetchData();
+            })
+    }
+
+	const handleCancel = (id_event) => {
 		Swal.fire({
 			title: 'Are you sure?',
 			text: "You won't be able to revert this!",
@@ -49,21 +67,7 @@ export default function MyEvent() {
 			confirmButtonText: 'Yes, delete it!',
 		}).then((result) => {
 			if (result.isConfirmed) {
-				const requestOptions = {
-					method: 'DELETE',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-				};
-				fetch(`https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/events/${id_event}`, requestOptions)
-					.then((response) => response.json())
-					.then(() => {
-						Swal.fire('Deleted!', 'Your event has been deleted.', 'success');
-					})
-					.catch(() => {
-						Swal.fire('Error!', 'Something went wrong.', 'error');
-					});
-				fetchData();
+				deleteParticipant(id_event)
 			}
 		});
 	};
@@ -74,7 +78,7 @@ export default function MyEvent() {
 		return (
 			<Layout headTitle={'My Events'} headDesc={'List of my events'}>
 				<div className='w-full flex flex-col sm:flex-row mt-12'>
-					<Sidebar active="my-event"/>
+					<Sidebar active="joined-event"/>
 					<div>
 						<Link href="/createevent"><div className="bg-sky-500 hover:bg-sky-700 text-white text-4xl p-3 absolute bottom-[7%] right-[3%] block whitespace-no-wrap cursor-pointer rounded-full"><TiPlus /></div></Link>
 						{myEvents.map((item) => {
@@ -96,10 +100,7 @@ export default function MyEvent() {
 										</div>
 									</div>
 									<div className='flex flex-col justify-center items-center space-y-4'>
-										<button className='bg-sky-500 hover:bg-sky-600 text-white py-2 w-36' onClick={() => router.push(`/editevent/${item.id_event}`)}>
-											Edit Event
-										</button>
-										<button className='bg-red-500 hover:bg-red-600 text-white py-2 w-36' onClick={() => handleDelete(item.id_event)}>
+										<button className='bg-red-500 hover:bg-red-600 text-white py-2 w-36' onClick={() => handleCancel(item.id_event)}>
 											Remove Event
 										</button>
 									</div>

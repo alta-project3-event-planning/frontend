@@ -1,10 +1,11 @@
-import { useState, useMemo } from "react"
+import { useState, useMemo,useContext } from "react"
 import { useRouter } from "next/router"
 import Layout from "../components/Layout"
 import Sidebar from "../components/Sidebar"
 import Loading from "../components/Loading"
 import dynamic from "next/dynamic"
 import Swal from "sweetalert2";
+import { TokenContext } from "../utils/context"
 
 const Createevent = () => {
     
@@ -18,6 +19,7 @@ const Createevent = () => {
         }
     ), [position])
 
+    const {token} = useContext(TokenContext)
     const [poster, setPoster] = useState("")
     const [srcPoster, setSrcPoster] = useState("")
     const [name,setName] = useState("")
@@ -26,7 +28,8 @@ const Createevent = () => {
     const [date,setDate] = useState("")
     const [detail,setDetail] = useState("")
     const [location,setLocation] = useState("Malang")
-    const [position,setPosition] = useState([-7.966620,112.632629])
+    const [position, setPosition] = useState([-7.966620, 112.632629])
+    const [loading,setLoading] =useState(false)
     
     const postEvent = () => {
         const body = {
@@ -41,26 +44,26 @@ const Createevent = () => {
         };
         var requestOptions = {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json",
+                     'Authorization': `Bearer ${token}`},
             body: JSON.stringify(body),
         };
         fetch(
-            "https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/events",
+            "https://infinitysport.site/events",
             requestOptions
         )
         .then((response) => response.json())
-        .then((result) => {
+            .then((result) => {
+            console.log(result)
             const { code, message } = result;
-            if (code === 200) {
+            if (code === "200") {
                 Swal.fire({
                     icon: 'success',
                     title: message
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        router.push('/my-event')
-                    }
+                }).then(() => {
+                    router.push('/my-event')
                 })
-            } else if (code === 400) {
+            } else {
                 Swal.fire({
                     icon: 'error',
                     title: message
@@ -133,9 +136,9 @@ const Createevent = () => {
         return <Loading />
     } else {
         return (
-            <Layout>
-                <div className="flex">
-                    <Sidebar />
+            <Layout headTitle={'Create Event'} headDesc={'create event'}>
+                <div className="flex w-full flex flex-col sm:flex-row mt-5">
+                    <Sidebar active="my-event"/>
                     <div className="w-full p-2">
                         <p className="font-bold text-xl mb-4">
                             Create Event

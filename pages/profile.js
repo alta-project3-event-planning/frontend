@@ -104,7 +104,7 @@ export default function Profile() {
 		return (
 			<Layout headTitle={`Profile - ${profile.name}`} headDesc={'Edit your profile'}>
 				<div className='w-full flex flex-col sm:flex-row mt-12'>
-					<Sidebar />
+					<Sidebar active="profile"/>
 					<div className='w-full'>
 						<h1 className='font-bold text-2xl text-center sm:text-start'>Profile</h1>
 						<div className='flex flex-col md:flex-row md:justify-around p-8 space-y-16 md:space-y-0'>

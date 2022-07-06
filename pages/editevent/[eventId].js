@@ -1,14 +1,16 @@
-import { useEffect, useState, useMemo } from "react"
+import { useEffect, useState, useMemo, useContext } from "react"
 import { useRouter } from "next/router"
 import dynamic from "next/dynamic"
 import Layout from "../../components/Layout"
 import Sidebar from "../../components/Sidebar"
 import Loading from "../../components/Loading"
 import Swal from "sweetalert2"
+import { TokenContext } from "../../utils/context"
 
 const Updateevent = () => {
     const router = useRouter()
     const { eventId } = router.query
+    const { token } = useContext(TokenContext)
     
     const Map = useMemo(() => dynamic(
         () => import('../../components/Map'), // replace '@components/map' with your component's location
@@ -34,16 +36,17 @@ const Updateevent = () => {
     }, [])
     
     const getEvent = async () => {
+        const { eventId } = router.query
 		const requestOptions = {
 			method: 'GET',
 			headers: { 'Content-Type': 'application/json' },
 		};
 
-		fetch(`https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/events/${eventId}`, requestOptions)
+		await fetch(`https://infinitysport.site/events/${eventId || '1'}`, requestOptions)
 			.then((response) => response.json())
             .then((result) => {
                 const { code, message, data } = result;
-                if (code === 200) {
+                if (code === "200") {
                     const dateEvent = new Date(data.date);
                     dateEvent.setMinutes(dateEvent.getMinutes() - dateEvent.getTimezoneOffset());
                     
@@ -56,7 +59,7 @@ const Updateevent = () => {
                     setDetail(data.details)
                     setLocation(data.city)
 
-                } else if(code === 400) {
+                } else if(code === "400") {
                     Swal.fire({
                         icon: 'error',
                         title: message
@@ -172,91 +175,95 @@ const Updateevent = () => {
     }
 
 
-    if (loading) {
-        return <Loading />
-    } else {
-        return (
-            <Layout>
-                <div className="flex">
-                    <Sidebar />
-                    <div className="w-full p-2">
-                        <p className="font-bold text-xl mb-4">
-                            Update Event
-                        </p>
-                        <div className="pr-20">
-                            <div className="flex flex-row my-2 items-center">
-                                <label className="basis-1/6">
-                                    Poster
-                                </label>
-                                <div className="basis-5/6 ">
-                                    <div className="flex items-end border-[0.1rem] rounded p-2 w-full gap-2">
-                                        {poster !== "" && (<img src={srcPoster} alt="this is image" className="w-48" />)}
-                                        <input type={"file"} onChange={(e) => handleChange(e, "poster")} ></input>
+    if (token !== "0") {
+        if (loading) {
+            return <Loading />
+        } else {
+            return (
+                <Layout>
+                    <div className="flex">
+                        <Sidebar active="my-event" />
+                        <div className="w-full p-2">
+                            <p className="font-bold text-xl mb-4">
+                                Update Event
+                            </p>
+                            <div className="pr-20">
+                                <div className="flex flex-row my-2 items-center">
+                                    <label className="basis-1/6">
+                                        Poster
+                                    </label>
+                                    <div className="basis-5/6 ">
+                                        <div className="flex items-end border-[0.1rem] rounded p-2 w-full gap-2">
+                                            {poster !== "" && (<img src={srcPoster} alt="this is image" className="w-48" />)}
+                                            <input type={"file"} onChange={(e) => handleChange(e, "poster")} ></input>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div className="flex flex-row my-2 items-center">
-                                <label className="basis-1/6">
-                                    Name
-                                </label>
-                                <div className="basis-5/6">
-                                    <input type={"text"} value={name} onChange={(e) => handleChange(e, "name")} className="border-[0.1rem] rounded p-2 w-full" placeholder="Name"></input>
+                                <div className="flex flex-row my-2 items-center">
+                                    <label className="basis-1/6">
+                                        Name
+                                    </label>
+                                    <div className="basis-5/6">
+                                        <input type={"text"} value={name} onChange={(e) => handleChange(e, "name")} className="border-[0.1rem] rounded p-2 w-full" placeholder="Name"></input>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="flex flex-row my-2 items-center">
-                                <label className="basis-1/6">
-                                    Host
-                                </label>
-                                <div className="basis-5/6">
-                                    <input type={"text"} value={host} onChange={(e) => handleChange(e, "host")} className="border-[0.1rem] rounded p-2 w-full" placeholder="Host"></input>
+                                <div className="flex flex-row my-2 items-center">
+                                    <label className="basis-1/6">
+                                        Host
+                                    </label>
+                                    <div className="basis-5/6">
+                                        <input type={"text"} value={host} onChange={(e) => handleChange(e, "host")} className="border-[0.1rem] rounded p-2 w-full" placeholder="Host"></input>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="flex flex-row my-2 items-center">
-                                <label className="basis-1/6">
-                                    Performers
-                                </label>
-                                <div className="basis-5/6">
-                                    <input type={"text"} value={performers} onChange={(e) => handleChange(e, "performers")} className="border-[0.1rem] rounded p-2 w-full" placeholder="Performers"></input>
+                                <div className="flex flex-row my-2 items-center">
+                                    <label className="basis-1/6">
+                                        Performers
+                                    </label>
+                                    <div className="basis-5/6">
+                                        <input type={"text"} value={performers} onChange={(e) => handleChange(e, "performers")} className="border-[0.1rem] rounded p-2 w-full" placeholder="Performers"></input>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="flex flex-row my-2 items-center">
-                                <label className="basis-1/6">
-                                    Date
-                                </label>
-                                <div className="basis-5/6">
-                                    <input type="datetime-local" value={date} onChange={(e) => handleChange(e, "date")} className="border-[0.1rem] rounded p-2 w-full" placeholder="Date"></input>
+                                <div className="flex flex-row my-2 items-center">
+                                    <label className="basis-1/6">
+                                        Date
+                                    </label>
+                                    <div className="basis-5/6">
+                                        <input type="datetime-local" value={date} onChange={(e) => handleChange(e, "date")} className="border-[0.1rem] rounded p-2 w-full" placeholder="Date"></input>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="flex flex-row my-2 items-center">
-                                <label className="basis-1/6">
-                                    Detail
-                                </label>
-                                <div className="basis-5/6">
-                                    <textarea type={"text"} value={detail} onChange={(e) => handleChange(e, "detail")} className="border-[0.1rem] rounded p-2 w-full" placeholder="Detail"></textarea>
+                                <div className="flex flex-row my-2 items-center">
+                                    <label className="basis-1/6">
+                                        Detail
+                                    </label>
+                                    <div className="basis-5/6">
+                                        <textarea type={"text"} value={detail} onChange={(e) => handleChange(e, "detail")} className="border-[0.1rem] rounded p-2 w-full" placeholder="Detail"></textarea>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="flex flex-row my-2 items-center">
-                                <label className="basis-1/6">
-                                    Location
-                                </label>
-                                <div className="basis-5/6">
-                                    <input type={"text"} value={location} onChange={(e) => handleChange(e, "location")} className="border-[0.1rem] rounded p-2 w-full" placeholder="Location"></input>
+                                <div className="flex flex-row my-2 items-center">
+                                    <label className="basis-1/6">
+                                        Location
+                                    </label>
+                                    <div className="basis-5/6">
+                                        <input type={"text"} value={location} onChange={(e) => handleChange(e, "location")} className="border-[0.1rem] rounded p-2 w-full" placeholder="Location"></input>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="flex flex-row my-2 items-center">
-                                <Map position={position} setPosition={setPosition} />
-                            </div>
-                            <div className="flex flex-row my-2 items-center justify-end text-sm gap-2">
-                                <b>Lat</b>{position[0]}<b>Lng.</b> {position[1]}
-                            </div>
-                            <div className="flex flex-row my-5 mb-10 items-center justify-end">
-                                <button className="font-bold py-2 px-20 bg-sky-500 hover:bg-sky-700 text-white rounded" onClick={() => handleSubmit()}>Save Change</button>
+                                <div className="flex flex-row my-2 items-center">
+                                    <Map position={position} setPosition={setPosition} />
+                                </div>
+                                <div className="flex flex-row my-2 items-center justify-end text-sm gap-2">
+                                    <b>Lat</b>{position[0]}<b>Lng.</b> {position[1]}
+                                </div>
+                                <div className="flex flex-row my-5 mb-10 items-center justify-end">
+                                    <button className="font-bold py-2 px-20 bg-sky-500 hover:bg-sky-700 text-white rounded" onClick={() => handleSubmit()}>Save Change</button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </Layout>
-        )
+                </Layout>
+            )
+        }
+    } else {
+        router.push('/login')
     }
 }
 export default Updateevent
