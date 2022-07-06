@@ -6,7 +6,7 @@ import CardEvent from '../components/CardEvent';
 import Layout from '../components/Layout';
 import Loading from '../components/Loading';
 
-export default function Home({ data }) {
+export default function Home() {
 	const router = useRouter();
 	const [currentTime, setCurrentTime] = useState('');
 	const [dataEvents, setDataEvents] = useState([]);
@@ -22,7 +22,7 @@ export default function Home({ data }) {
 			headers: { 'Content-Type': 'application/json' },
 		};
 
-		fetch('http://44.208.20.97:80/events', requestOptions)
+		fetch('https://infinitysport.site/events', requestOptions)
 			.then((response) => response.json())
 			.then((data) => {
 				setCurrentTime(data.currentTime);

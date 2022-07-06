@@ -5,10 +5,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { CgProfile } from 'react-icons/cg';
 import { RiSendPlaneFill } from 'react-icons/ri';
 import dynamic from 'next/dynamic';
+import Swal from 'sweetalert2';
+import Image from 'next/image';
 
 import Layout from '../../components/Layout';
 import Loading from '../../components/Loading';
-import Swal from 'sweetalert2';
 
 export default function DetailEvent() {
 	const router = useRouter();
@@ -19,6 +20,7 @@ export default function DetailEvent() {
 	const [comment, setComment] = useState([]);
 	const [comment_text, setCommentText] = useState('');
 	const [participant, setParticipant] = useState([]);
+	const [id_participant, setIdParticipant] = useState();
 
 	const Map = useMemo(
 		() =>
@@ -40,7 +42,7 @@ export default function DetailEvent() {
 			},
 		};
 
-		await fetch(`https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/events/${id_event}`, requestConfig)
+		await fetch(`https://infinitysport.site/events/${id_event}`, requestConfig)
 			.then((response) => response.json())
 			.then((data) => {
 				setEvent(data.data);
@@ -54,7 +56,6 @@ export default function DetailEvent() {
 	};
 
 	const getComments = async () => {
-		const { id_event } = router.query;
 		const requestConfig = {
 			method: 'GET',
 			headers: {
@@ -85,6 +86,7 @@ export default function DetailEvent() {
 			.then((response) => response.json())
 			.then((data) => {
 				setParticipant(data.data);
+				setIdParticipant(data.data[0].id_participant);
 			})
 			.catch((error) => {
 				console.log(error);
@@ -93,7 +95,6 @@ export default function DetailEvent() {
 	};
 
 	const postComment = async () => {
-		const { id_event } = router.query;
 		const requestConfig = {
 			method: 'POST',
 			headers: {
@@ -108,9 +109,7 @@ export default function DetailEvent() {
 		await fetch('https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/events/comments', requestConfig)
 			.then((response) => response.json())
 			.then((data) => {
-				console.log(data);
-				setComment(data.data);
-				getComments();
+				data.code === 200 && getComments();
 			})
 			.catch((error) => {
 				console.log(error);
@@ -118,7 +117,6 @@ export default function DetailEvent() {
 	};
 
 	const joinEvent = async () => {
-		const { id_event } = router.query;
 		const requestConfig = {
 			method: 'POST',
 			headers: {
@@ -132,10 +130,9 @@ export default function DetailEvent() {
 		await fetch('https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/events/participations', requestConfig)
 			.then((response) => response.json())
 			.then((data) => {
-				console.log(data);
 				Swal.fire({
 					title: 'Success',
-					text: 'You have joined this event',
+					text: `${data.message}`,
 					icon: 'success',
 				});
 			})
@@ -144,6 +141,33 @@ export default function DetailEvent() {
 				Swal.fire({
 					title: 'Failed',
 					text: 'You have already joined this event',
+					icon: 'error',
+				});
+			});
+	};
+
+	const cancelJoin = async () => {
+		const requestOptions = {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		};
+
+		await fetch(`https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/events/participations/${id_event}`, requestOptions)
+			.then((response) => response.json())
+			.then((data) => {
+				setIdParticipant(null);
+				Swal.fire({
+					title: 'Success',
+					text: `${data.message}`,
+					icon: 'success',
+				});
+			})
+			.catch((error) => {
+				Swal.fire({
+					title: 'Failed',
+					text: 'Something went wrong',
 					icon: 'error',
 				});
 			});
@@ -202,8 +226,10 @@ export default function DetailEvent() {
 											{comment.map((item) => {
 												return (
 													<div className='bg-slate-200 hover:bg-slate-300 p-4 space-y-4 rounded-md' key={item.id_comment}>
-														<p className='font-bold text-xs sm:text-base'>{item.comment}</p>
-														<p className='text-xs sm:text-base'>{item.name}</p>
+														<div>
+															<p className='font-bold text-xs sm:text-base'>{item.comment}</p>
+															<p className='text-xs sm:text-base'>{item.name}</p>
+														</div>
 													</div>
 												);
 											})}
@@ -224,7 +250,9 @@ export default function DetailEvent() {
 							</div>
 						</div>
 						<div className='md:p-4 col-span-6 md:col-span-2 row-start-1 md:row-start-auto space-y-4'>
-							<div className='flex justify-center'>Image</div>
+							<div className='flex justify-center'>
+								<Image src={event.image_url} width='100%' height='100%' alt={event.name} />
+							</div>
 							<div className='flex justify-between'>
 								<h1 className='text-xl font-bold'>{event.name}</h1>
 								<p>
@@ -238,8 +266,11 @@ export default function DetailEvent() {
 							<h1>
 								<span className='text-slate-400'>Location : </span> {event.city}
 							</h1>
-							<button className='bg-sky-500 hover:bg-sky-600 text-white py-2 w-full rounded-md' onClick={() => joinEvent()}>
+							<button className={`bg-sky-500 hover:bg-sky-600 text-white py-2 w-full rounded-md ${id_participant ? 'hidden' : 'block'}`} onClick={() => joinEvent()}>
 								Join
+							</button>
+							<button className={`bg-red-500 hover:bg-red-600 text-white py-2 w-full rounded-md ${id_participant ? 'block' : 'hidden'}`} onClick={() => cancelJoin()}>
+								Cancel
 							</button>
 						</div>
 					</div>

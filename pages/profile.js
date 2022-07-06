@@ -3,18 +3,21 @@ import Swal from 'sweetalert2';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { CgProfile } from 'react-icons/cg';
+import { FaEdit } from 'react-icons/fa';
 
 import Loading from '../components/Loading';
 import Layout from '../components/Layout';
 import Sidebar from '../components/Sidebar';
+import Image from 'next/image';
 
 export default function Profile() {
 	const router = useRouter();
 	const [loading, setLoading] = useState(true);
 	const [profile, setProfile] = useState({});
+	const [avatar, setAvatar] = useState('');
 	const [name, setName] = useState('');
-	const [Email, setEmail] = useState('');
-	const [Password, setPassword] = useState('');
+	const [email, setEmail] = useState('');
+	const [password, setPassword] = useState('');
 
 	useEffect(() => {
 		getUserProfile();
@@ -70,9 +73,10 @@ export default function Profile() {
 
 	const handleUpdateProfile = () => {
 		const body = {
-			name: name,
-			email: Email,
-			password: Password,
+			avatar,
+			name,
+			email,
+			password,
 		};
 		const requestOptions = {
 			method: 'PUT',
@@ -109,7 +113,15 @@ export default function Profile() {
 						<h1 className='font-bold text-2xl text-center sm:text-start'>Profile</h1>
 						<div className='flex flex-col md:flex-row md:justify-around p-8 space-y-16 md:space-y-0'>
 							<div className='flex flex-col items-center space-y-8'>
-								<CgProfile className='text-5xl font-bold' />
+								<div className='flex'>
+									<Image src={'https://www.seekpng.com/png/full/966-9665317_placeholder-image-person-jpg.png'} alt='avatar' width={100} height={100} className='rounded-full' />
+									<div className='flex items-end ml-2'>
+										<input type={'file'} accept={'image/*'} id={'upload_avatar'} className='hidden' onChange={(e) => setAvatar(e.target.files[0])} />
+										<label htmlFor={'upload_avatar'} className='text-center cursor-pointer'>
+											<FaEdit />
+										</label>
+									</div>
+								</div>
 								<form className='flex flex-col space-y-4'>
 									<div className='grid grid-cols-4'>
 										<label htmlFor='name' className='sm:text-xl text-end'>
