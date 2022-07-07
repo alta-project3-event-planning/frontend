@@ -54,10 +54,11 @@ const Updateevent = () => {
                     setSrcPoster(data.image_url)
                     setName(data.name)
                     setHost(data.hostedby)
-                    setPerformers(data.hostedby)
+                    setPerformers(data.performers)
                     setDate(dateEvent.toISOString().slice(0,16))
                     setDetail(data.details)
                     setLocation(data.city)
+                    setPosition(data.location.split(','))
 
                 } else if(code === "400") {
                     Swal.fire({
@@ -75,32 +76,33 @@ const Updateevent = () => {
     };
 
     const putEvent = () => {
-        const body = {
-            "image_url" : poster,
-            "name" : name,
-            "hostedby" : host,
-            "performers" : performers,
-            "date" : date,
-            "details" : detail,
-            "city" : location,
-            "location" : position.join()
-        };
+        const formData = new FormData();
+        formData.append("file",poster)
+        formData.append("name",name)
+        formData.append("performers",performers)
+        formData.append("hostedby",host)
+        formData.append("date",date)
+        formData.append("city",location)
+        formData.append("location",position.join())
+        formData.append("details", detail)
+        
         var requestOptions = {
             method: "PUT",
             headers: {
-                "Content-Type": "application/json",
+                "Accept": "application/json",
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify(body),
+            body: formData,
         };
         fetch(
-            `https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/events/${eventId}`,
+            `https://infinitysport.site/events/${eventId}`,
             requestOptions
         )
         .then((response) => response.json())
-        .then((result) => {
+            .then((result) => {
+            console.log(result)
             const { code, message } = result;
-            if (code === 200) {
+            if (code == 200) {
                 Swal.fire({
                     icon: 'success',
                     title: message
@@ -109,7 +111,7 @@ const Updateevent = () => {
                         router.push('/my-event')
                     }
                 })
-            } else if (code === 400) {
+            } else if (code == 400) {
                 Swal.fire({
                     icon: 'error',
                     title: message
@@ -183,8 +185,8 @@ const Updateevent = () => {
             return <Loading />
         } else {
             return (
-                <Layout>
-                    <div className="flex">
+                <Layout headTitle={'Edit Event'} headDesc={'edit event'}>
+                    <div className="flex my-12">
                         <Sidebar active="my-event" />
                         <div className="w-full p-2">
                             <p className="font-bold text-xl mb-4">

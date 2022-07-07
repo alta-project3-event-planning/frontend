@@ -13,7 +13,9 @@ export default function Layout({ headTitle, headDesc, children }) {
 			</Head>
 			<div>
 				<Navbar />
-				{children}
+				<div className='px-4'>
+					{children}
+				</div>
 			</div>
 		</div>
 	);

@@ -32,43 +32,47 @@ const Createevent = () => {
     const [loading,setLoading] =useState(false)
     
     const postEvent = () => {
-        const body = {
-            "image_url" : poster,
-            "name" : name,
-            "hostedby" : host,
-            "performers" : performers,
-            "date" : date,
-            "details" : detail,
-            "city" : location,
-            "location" : position.join()
-        };
+        const formData = new FormData();
+        formData.append("file",poster)
+        formData.append("name",name)
+        formData.append("performers",performers)
+        formData.append("hostedby",host)
+        formData.append("date",date)
+        formData.append("city",location)
+        formData.append("location",position.join())
+        formData.append("details", detail)
+
+        
         var requestOptions = {
             method: "POST",
-            headers: { "Content-Type": "application/json",
+            headers: { 'Accept': 'application/json',
                      'Authorization': `Bearer ${token}`},
-            body: JSON.stringify(body),
+            body: formData,
         };
         fetch(
             "https://infinitysport.site/events",
             requestOptions
         )
         .then((response) => response.json())
-            .then((result) => {
-            console.log(result)
-            const { code, message } = result;
-            if (code === "200") {
-                Swal.fire({
-                    icon: 'success',
-                    title: message
-                }).then(() => {
-                    router.push('/my-event')
-                })
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: message
-                });
+        .then((result) => {
+
+        const { code, message } = result;
+        if (code === "200") {
+            Swal.fire({
+                icon: 'success',
+                title: message
+            }).then(() => {
+                router.push('/my-event')
+            })
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: message
+            });
+            if (message === "invalid or expired jwt") {
+                handleLogout()
             }
+        }
         })
         .catch((err) => {
             console.log(err)
@@ -78,12 +82,31 @@ const Createevent = () => {
         });
     }
 
+    const handleLogout = () => {
+        localStorage.removeItem("token");
+        setToken("0");
+        router.push('/login')
+    }
+
     const handleChange = (e, type) => {
         let val = e.target.value
         switch (type) {
             case 'poster':
-                setPoster(e.target.files[0])
-                setSrcPoster(URL.createObjectURL(e.target.files[0]))
+                if (e.target.files[0].size > 1050000) {
+                    Swal.fire('Your image size is too big!', 'minimum file size 1,05 MB', 'error')
+                    e.target.value = ''
+                    setSrcPoster('')
+                } else {
+                    const requiredImgType = ['image/jpg','image/jpeg','image/png']
+                    if (requiredImgType.includes(e.target.files[0].type)) {
+                        setPoster(e.target.files[0])
+                        setSrcPoster(URL.createObjectURL(e.target.files[0]))
+                    } else {
+                        Swal.fire('Your image type is wrong!', 'file must jpg,png,jpeg', 'error')
+                        e.target.value = ''
+                        setSrcPoster('')
+                    }
+                }
                 break;
             case 'name':
                 setName(val)
@@ -150,7 +173,7 @@ const Createevent = () => {
                                 </label>
                                 <div className="basis-5/6 ">
                                     <div className="flex items-end border-[0.1rem] rounded p-2 w-full gap-2">
-                                        {poster !== "" && (<img src={srcPoster} alt="shit" className="w-48" />)}
+                                        {poster !== "" && (<img src={srcPoster} alt="image" className="w-48" />)}
                                         <input type={"file"} onChange={(e) => handleChange(e, "poster")} ></input>
                                     </div>
                                 </div>
