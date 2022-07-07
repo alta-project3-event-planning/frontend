@@ -2,7 +2,6 @@
 import Swal from 'sweetalert2';
 import { useEffect, useState, useContext } from 'react';
 import { useRouter } from 'next/router';
-// import { CgProfile } from 'react-icons/cg';
 import { FaEdit } from 'react-icons/fa';
 import Image from 'next/image';
 
@@ -77,7 +76,7 @@ export default function Profile() {
 					.catch((error) => {
 						console.log(error);
 					});
-				// router.push('/login');
+				router.push('/login');
 			}
 		});
 	};

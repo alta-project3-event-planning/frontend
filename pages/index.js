@@ -6,7 +6,7 @@ import CardEvent from '../components/CardEvent';
 import Layout from '../components/Layout';
 import Loading from '../components/Loading';
 
-export default function Home({ data }) {
+export default function Home() {
 	const router = useRouter();
 	const [currentTime, setCurrentTime] = useState('');
 	const [dataEvents, setDataEvents] = useState([]);
@@ -64,22 +64,4 @@ export default function Home({ data }) {
 			</Layout>
 		);
 	}
-}
-
-export async function getServerSideProps() {
-	const requestOptions = {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-	};
-
-	const response = await fetch('https://virtserver.swaggerhub.com/Alfin7007/soundfest/1.0.0/events', requestOptions);
-	const data = await response.json();
-
-	return {
-		props: {
-			data,
-		},
-	};
 }

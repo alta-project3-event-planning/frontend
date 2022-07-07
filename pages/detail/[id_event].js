@@ -2,11 +2,9 @@
 import moment from 'moment';
 import { useRouter } from 'next/router';
 import { useContext, useEffect, useMemo, useState } from 'react';
-import { CgProfile } from 'react-icons/cg';
 import { RiSendPlaneFill } from 'react-icons/ri';
 import dynamic from 'next/dynamic';
 import Swal from 'sweetalert2';
-import Image from 'next/image';
 
 import { TokenContext } from '../../utils/context';
 import Layout from '../../components/Layout';
