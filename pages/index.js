@@ -25,6 +25,7 @@ export default function Home({ data }) {
 		fetch('https://infinitysport.site/events?page=1', requestOptions)
 			.then((response) => response.json())
 			.then((data) => {
+				console.log(data)
 				setCurrentTime(data.currenttime);
 				setDataEvents(data.data);
 			})
@@ -41,23 +42,25 @@ export default function Home({ data }) {
 	} else {
 		return (
 			<Layout headTitle={'Sound Fest'} headDesc={'Sound Festive'}>
-				<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 py-2 px-6 sm:p-8'>
-					{dataEvents.map((item) => {
-						return (
-							<CardEvent
-								key={item.id_event}
-								name={item.name}
-								hosted_by={item.hostedby}
-								performers={item.performers}
-								image={item.image_url}
-								date={item.date}
-								location={item.location}
-								id_event={item.id_event}
-								currentTime={currentTime}
-								onClickEvent={() => router.push(`detail/${item.id_event}`)}
-							/>
-						);
-					})}
+				<div className='flex flex-col h-full justify-between'>
+					<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 py-2 px-6 sm:p-8'>
+						{dataEvents.map((item) => {
+							return (
+								<CardEvent
+									key={item.id_event}
+									name={item.name}
+									hosted_by={item.hostedby}
+									performers={item.performers}
+									image={item.image_url}
+									date={item.date}
+									location={item.city}
+									id_event={item.id_event}
+									currentTime={currentTime}
+									onClickEvent={() => router.push(`detail/${item.id_event}`)}
+								/>
+							);
+						})}
+					</div>
 				</div>
 			</Layout>
 		);

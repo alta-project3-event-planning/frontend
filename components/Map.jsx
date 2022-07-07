@@ -5,8 +5,10 @@ import 'leaflet-defaulticon-compatibility';
 const Map = ({ position,setPosition }) => {
   const Markers = () => {
     useMapEvents({
-        click(e) {                                
-            setPosition([e.latlng.lat, e.latlng.lng]);                
+        click(e) {
+            if (setPosition) {
+              setPosition([e.latlng.lat, e.latlng.lng]);                
+            }
         },            
     })
     return (

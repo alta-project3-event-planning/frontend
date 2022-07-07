@@ -27,9 +27,10 @@ export default function MyEvent() {
 			},
 		};
 
-		fetch('https://infinitysport.site/events/participations', requestOptions)
+		await fetch('https://infinitysport.site/events/participations', requestOptions)
 			.then((response) => response.json())
 			.then((data) => {
+				console.log(data.data)
 				setCurrTime(data.currenttime)
 				setMyEvents(data.data);
 			})
@@ -41,17 +42,19 @@ export default function MyEvent() {
 			});
 	};
 
-    const deleteParticipant = (id_event) => {
+	const deleteParticipant = (id_event) => {
+		setLoading(true)
         const requestOptions = {
             method: 'DELETE',
             headers: {
-                'Content-Type': 'application/json',
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${token}`
             },
         };
         fetch(`https://infinitysport.site/events/participations/${id_event}`, requestOptions)
             .then((response) => response.json())
             .then(() => {
-                Swal.fire('Deleted!', 'Your event has been deleted.', 'success');
+                Swal.fire('Canceled!', 'Your event has been canceled.', 'success');
             })
             .catch(() => {
                 Swal.fire('Error!', 'Something went wrong.', 'error');
@@ -86,12 +89,12 @@ export default function MyEvent() {
 					<div className='flex flex-col gap-12 pb-12 w-[100vw]'>
 						{myEvents.map((item) => {
 							return (
-								<div className='grid grid-cols-1 sm:grid-cols-5 gap-5' key={item.id_event}>
-									<div className='flex justify-center items-center'><img src={item.image_url} alt="image" /></div>
+								<div className='grid grid-cols-1 sm:grid-cols-5 gap-5' key={item.id_participant}>
+									<div className='flex justify-center items-center'><img src={item.url} alt="image" /></div>
 									<div className='col-span-3 flex flex-col justify-center items-center sm:items-start'>
 										<div className='flex justify-between w-full'>
 											<h1 className='text-2xl font-bold'>{item.name}</h1>
-											{item.date < currTime && (<div className='bg-white border-red-500 border-2 rotate-6 self-end p-1 rounded-sm font-bold px-9 text-red-500'>Event End</div>)}
+											{item.time < currTime && (<div className='bg-white border-red-500 border-2 rotate-6 self-end p-1 rounded-sm font-bold px-9 text-red-500'>Event End</div>)}
 										</div>
 										<p>
 											<span className='text-slate-400'>Hosted By </span>
@@ -106,19 +109,16 @@ export default function MyEvent() {
 											{item.city}
 										</p>
 										<p>
-											{moment(item.date, 'DD-MM-YYYY').format('dddd')}, {moment(item.date).format('DD MMMM YYYY')}
+											{moment(item.time, 'DD-MM-YYYY').format('dddd')}, {moment(item.time).format('DD MMMM YYYY')}
 										</p>
 										<div className='mt-4 flex flex-col items-center sm:items-start'>
 											<h1 className='text-slate-400'>About this event</h1>
-											<p>{item.details.split('\n').map((item, key) => { return <span key={key}>{item}<br/></span>})}</p>
+											<p>{item.detail.split('\n').map((item, key) => { return <span key={key}>{item}<br/></span>})}</p>
 										</div>
 									</div>
 									<div className='flex flex-col justify-center items-center space-y-4'>
-										<button className='bg-sky-500 hover:bg-sky-600 text-white py-2 w-36' onClick={() => router.push(`/editevent/${item.id_event}`)}>
-											Edit Event
-										</button>
-										<button className='bg-red-500 hover:bg-red-600 text-white py-2 w-36' onClick={() => handleDelete(item.id_event)}>
-											Remove Event
+										<button className='bg-red-500 hover:bg-red-600 text-white py-2 w-36 rounded' onClick={() => handleCancel(item.id_participant)}>
+											Cancel
 										</button>
 									</div>
 								</div>

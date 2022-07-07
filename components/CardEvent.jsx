@@ -24,7 +24,7 @@ export default function CardEvent({ image, name, hosted_by, performers, date, cu
 				</p>
 				<p>
 					<span>Date : </span>
-					{moment(date, 'DD-MM-YYYY').format('dddd')}, {moment(date, 'DD-MM-YYYY').format('DD MMMM YYYY')}
+					{moment(date, 'DD-MM-YYYY').format('dddd')}, {moment(date).format('DD MMMM YYYY')}
 				</p>
 				<p>Location : {location}</p>
 			</div>

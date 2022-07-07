@@ -72,8 +72,9 @@ export default function DetailEvent() {
 		await fetch(`https://infinitysport.site/events/${id_event}`, requestConfig)
 			.then((response) => response.json())
 			.then((data) => {
+				setPosition(data.data.location.split(','))
 				setEvent(data.data);
-				setCurrentTime(moment(currentTime).format('LL'));
+				setCurrentTime(moment(data.data.currenttime).format('LL'));
 				setDateEvent(moment(data.data.date).format('LL'));
 			})
 			.catch((error) => {
@@ -89,7 +90,7 @@ export default function DetailEvent() {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`,
+				'Authorization': `Bearer ${token}`,
 			},
 		};
 
@@ -231,7 +232,7 @@ export default function DetailEvent() {
 	useEffect(() => {
 		getUserProfile();
 	}, []);
-
+	
 	useEffect(() => {
 		getDetail();
 	}, []);
@@ -244,101 +245,109 @@ export default function DetailEvent() {
 		getParticipant();
 	}, []);
 
-	if (loading) {
-		return <Loading />;
-	} else {
-		return (
-			<Layout headTitle={'Event'} headDesc={'Details of event'}>
-				<div className='mx-6 my-12 sm:mx-12'>
-					<div className='grid grid-cols-6 gap-6 md:gap-0'>
-						<div className='col-span-6 md:col-span-4 space-y-4'>
-							<div className='space-y-6'>
-								<div className='space-y-2'>
-									<h1 className='text-2xl font-bold'>About this event</h1>
-									<p>{event.details}</p>
-								</div>
-								<div>
-									<Map position={position} setPosition={setPosition} />
-								</div>
-							</div>
-							<div className='space-y-6'>
-								<div className='flex justify-between'>
-									<h1 className='text-xl font-bold'>Participant</h1>
-									<p className='text-slate-400'>{participant.length} Participant</p>
-								</div>
-								<div>
-									<div className='flex text-2xl space-x-6'>
-										{participant.map((item) => {
-											return (
-												<div key={item.id} className='flex flex-col items-center justify-center'>
-													<img src={item.url} alt={item.name} width={'55px'} height={'55px'} className='rounded-full' />
-													<p className='text-base'>{item.name}</p>
-												</div>
-											);
-										})}
+	if (token !== "0") {
+		if (loading) {
+			return <Loading />;
+		} else {
+			return (
+				<Layout headTitle={'Event'} headDesc={'Details of event'}>
+					<div className='mx-6 my-12 sm:mx-12'>
+						<div className='grid grid-cols-6 gap-6 md:gap-0'>
+							<div className='col-span-6 md:col-span-4 space-y-4'>
+								<div className='space-y-6'>
+									<div className='space-y-2'>
+										<h1 className='text-2xl font-bold'>About this event</h1>
+										<p>{event.details}</p>
+									</div>
+									<div>
+										<Map position={position} />
 									</div>
 								</div>
-								<div className='bg-slate-100 px-4 py-8'>
-									<div className='space-y-4'>
-										<h1 className='text-xl font-bold'>Comment</h1>
-										<div className='space-y-2 py-2 h-52 overflow-y-auto'>
-											{comment.map((item) => {
+								<div className='space-y-6'>
+									<div className='flex justify-between'>
+										<h1 className='text-xl font-bold'>Participant</h1>
+										<p className='text-slate-400'>{participant.length} Participant</p>
+									</div>
+									<div>
+										<div className='flex text-2xl space-x-6'>
+											{participant.map((item) => {
 												return (
-													<div className='bg-slate-200 hover:bg-slate-300 p-4 space-y-4 rounded-md flex items-center space-x-4' key={item.id_comment}>
-														<div className='flex items-center justify-center'>
-															<img src={item.avatar} alt={item.name} width={'55px'} height={'55px'} className='rounded-full' />
-														</div>
-														<div>
-															<p className='font-bold text-xs sm:text-base'>{item.comment}</p>
-															<p className='text-xs sm:text-base'>{item.name}</p>
-														</div>
+													<div key={item.id} className='flex flex-col items-center justify-center'>
+														<img src={item.url} alt={item.name} width={'55px'} height={'55px'} className='rounded-full' />
+														<p className='text-base'>{item.name}</p>
 													</div>
 												);
 											})}
 										</div>
 									</div>
-									<div className='flex justify-around'>
-										<div className='flex items-center mr-4'>
-											<img src={profile.url} alt={profile.name} width={'55px'} height={'55px'} className='rounded-full' />
+									<div className='bg-slate-100 px-4 py-8'>
+										<div className='space-y-4'>
+											<h1 className='text-xl font-bold'>Comment</h1>
+											<div className='space-y-2 py-2 h-52 overflow-y-auto'>
+												{comment.map((item) => {
+													return (
+														<div className='bg-slate-200 hover:bg-slate-300 p-4 space-y-4 rounded-md flex items-center space-x-4' key={item.id_comment}>
+															<div className='flex items-center justify-center'>
+																<img src={item.avatar} alt={item.name} width={'55px'} height={'55px'} className='rounded-full' />
+															</div>
+															<div>
+																<p className='font-bold text-xs sm:text-base'>{item.comment}</p>
+																<p className='text-xs sm:text-base'>{item.name}</p>
+															</div>
+														</div>
+													);
+												})}
+											</div>
 										</div>
-										<textarea name='comment' placeholder='Write your comment' className='border border-slate-300 p-4 resize-none focus:outline-none focus:border-sky-500 w-full' onChange={(e) => setCommentText(e.target.value)} />
-										<div className='flex items-center'>
-											<button onClick={() => postComment()}>
-												<RiSendPlaneFill className='text-sky-500 text-2xl ml-4 cursor-pointer' />
-											</button>
+										<div className='flex justify-around'>
+											<div className='flex items-center mr-4'>
+												<img src={profile.url} alt={profile.name} width={'55px'} height={'55px'} className='rounded-full' />
+											</div>
+											<textarea name='comment' placeholder='Write your comment' className='border border-slate-300 p-4 resize-none focus:outline-none focus:border-sky-500 w-full' onChange={(e) => setCommentText(e.target.value)} />
+											<div className='flex items-center'>
+												<button onClick={() => postComment()}>
+													<RiSendPlaneFill className='text-sky-500 text-2xl ml-4 cursor-pointer' />
+												</button>
+											</div>
 										</div>
 									</div>
 								</div>
 							</div>
-						</div>
-						<div className='md:p-4 col-span-6 md:col-span-2 row-start-1 md:row-start-auto space-y-4'>
-							{isAfter ? null : <h1 className='bg-red-500/90 px-4 py-1 w-fit text-white rounded-full ml-auto translate-y-3 translate-x-6 select-none text-xs'>Event End</h1>}
-							<div className='flex justify-center'>
-								<img src={event.image_url} width={200} height={200} alt={event.name} />
+							<div className='md:p-4 col-span-6 md:col-span-2 row-start-1 md:row-start-auto space-y-4'>
+								{isAfter ? null : <h1 className='bg-red-500/90 px-4 py-1 w-fit text-white rounded-full ml-auto translate-y-3 translate-x-6 select-none text-xs'>Event End</h1>}
+								<div className='flex justify-center'>
+									<img src={event.image_url} width={200} height={200} alt={event.name} />
+								</div>
+								<div className='flex justify-between'>
+									<h1 className='text-xl font-bold'>{event.name}</h1>
+									<p>
+										{moment(event.date, 'DD-MM-YYYY').format('dddd')}, {moment(event.date).format('DD MMMM YYYY')}
+									</p>
+								</div>
+								<h1>
+									<span className='text-slate-400'>HostedBy : </span>
+									{event.hostedby}
+								</h1>
+								<h1>
+									<span className='text-slate-400'>Performers : </span>
+									{event.performers}
+								</h1>
+								<h1>
+									<span className='text-slate-400'>Location : </span> {event.city}
+								</h1>
+								<button disabled={isAfter ? false : true} className={`bg-sky-500 hover:bg-sky-600 text-white py-2 w-full rounded-md ${isAfter ? 'cursor-pointer' : 'cursor-not-allowed bg-slate-400 hover:bg-slate-400 text-slate-200'} ${join ? 'hidden' : 'block'}`} onClick={() => joinEvent()}>
+									Join
+								</button>
+								<button className={`bg-red-500 hover:bg-red-600 text-white py-2 w-full rounded-md ${join ? 'block' : 'hidden'}`} onClick={() => cancelJoin()}>
+									Cancel
+								</button>
 							</div>
-							<div className='flex justify-between'>
-								<h1 className='text-xl font-bold'>{event.name}</h1>
-								<p>
-									{moment(event.date, 'DD-MM-YYYY').format('dddd')}, {moment(event.date, 'DD-MM-YYYY').format('DD MMMM YYYY')}
-								</p>
-							</div>
-							<h1>
-								<span className='text-slate-400'>Performers : </span>
-								{event.hostedby}
-							</h1>
-							<h1>
-								<span className='text-slate-400'>Location : </span> {event.city}
-							</h1>
-							<button className={`bg-sky-500 hover:bg-sky-600 text-white py-2 w-full rounded-md ${join ? 'hidden' : 'block'}`} onClick={() => joinEvent()}>
-								Join
-							</button>
-							<button className={`bg-red-500 hover:bg-red-600 text-white py-2 w-full rounded-md ${join ? 'block' : 'hidden'}`} onClick={() => cancelJoin()}>
-								Cancel
-							</button>
 						</div>
 					</div>
-				</div>
-			</Layout>
-		);
+				</Layout>
+			);
+		}
+	} else {
+		router.push('/login')
 	}
 }
