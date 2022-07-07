@@ -21,6 +21,7 @@ export default function Profile() {
 	const [avatar, setAvatar] = useState('https://www.seekpng.com/png/full/966-9665317_placeholder-image-person-jpg.png');
 	const [name, setName] = useState('');
 	const [email, setEmail] = useState('');
+	const [objSubmit, setObjSubmit] = useState('');
 	const [password, setPassword] = useState('');
 
 	useEffect(() => {
@@ -66,9 +67,10 @@ export default function Profile() {
 					method: 'DELETE',
 					headers: {
 						'Content-Type': 'application/json',
+						Authorization: `Bearer ${token}`,
 					},
 				};
-				fetch(`https://infinitysport.site/users/${userId}`, requestOptions)
+				fetch(`https://infinitysport.site/users`, requestOptions)
 					.then((response) => response.json())
 					.then((data) => {
 						Swal.fire('Deleted!', 'Your Account has been deleted.', 'success');
@@ -81,43 +83,44 @@ export default function Profile() {
 		});
 	};
 
-	const handleUpdateProfile = () => {
-		const body = {
-			avatar,
-			name,
-			email,
-			password,
-		};
+	const handleUpdateProfile = async (e) => {
+		setLoading(true);
+		if (e !== undefined) {
+			e.preventDefault();
+		}
+		const body = new FormData();
+		for (const key in objSubmit) {
+			body.append(key, objSubmit[key]);
+		}
 		const requestOptions = {
 			method: 'PUT',
 			headers: {
-				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
 			},
-			body: JSON.stringify(body),
+			body,
 		};
 
-		fetch(`https://infinitysport.site/users/${userId}`, requestOptions)
+		fetch(`https://infinitysport.site/users`, requestOptions)
 			.then((response) => response.json())
 			.then((data) => {
-				if (data.code === '200') {
-					Swal.fire({
-						icon: 'success',
-						title: 'Your profile has been updated!',
-						showConfirmButton: false,
-						timer: 1500,
-					});
-				} else if (data.code === '400') {
-					Swal.fire({
-						icon: 'error',
-						title: 'Oops...',
-						text: 'Something went wrong!',
-					});
+				const { message, code } = data;
+				if (code == 200) {
+					Swal.fire('Updated!', message, 'success');
+					setObjSubmit({});
+				} else {
+					Swal.fire('Error!', message, 'error');
 				}
 			})
 			.catch((error) => {
 				console.log(error);
 			})
-			.finally(() => setLoading(false));
+			.finally(() => getUserProfile());
+	};
+
+	const handleChange = (value, key) => {
+		let temp = { ...objSubmit };
+		temp[key] = value;
+		setObjSubmit(temp);
 	};
 
 	if (loading) {
@@ -127,14 +130,23 @@ export default function Profile() {
 			<Layout headTitle={`Profile - ${profile.name}`} headDesc={'Edit your profile'}>
 				<div className='w-full flex flex-col sm:flex-row mt-12'>
 					<Sidebar active='profile' />
-					<div className='w-full'>
+					<div className='w-full flex flex-col lg:flex-row lg:justify-around p-8 space-y-16 lg:space-y-0'>
 						<h1 className='font-bold text-2xl text-center sm:text-start'>Profile</h1>
-						<div className='flex flex-col md:flex-row md:justify-around p-8 space-y-16 md:space-y-0'>
+						<form onSubmit={(e) => handleUpdateProfile(e)}>
 							<div className='flex flex-col items-center space-y-8'>
 								<div className='flex'>
-									<Image src={avatar} alt='avatar' width={100} height={100} className='rounded-full' />
+									<Image src={profile.url} alt='avatar' width={100} height={100} className='rounded-full' />
 									<div className='flex items-end ml-2'>
-										<input type={'file'} accept={'image/*'} id={'upload_avatar'} className='hidden' onChange={(e) => setAvatar(URL.createObjectURL(e.target.files[0]))} />
+										<input
+											type={'file'}
+											accept={'image/*'}
+											id={'upload_avatar'}
+											className='hidden'
+											onChange={(e) => {
+												setAvatar(URL.createObjectURL(e.target.files[0]));
+												handleChange(e.target.files[0], 'file');
+											}}
+										/>
 										<label htmlFor={'upload_avatar'} className='text-center cursor-pointer'>
 											<FaEdit />
 										</label>
@@ -145,30 +157,37 @@ export default function Profile() {
 										<label htmlFor='name' className='sm:text-xl text-end'>
 											Name :
 										</label>
-										<input type='text' name='name' id='name' value={name} className='col-span-3 ml-4 pl-2 border focus:outline-none focus:ring-2 focus:ring-sky-400' onChange={(e) => setName(e.target.value)} />
+										<input type='text' name='name' id='name' placeholder={name} className='col-span-3 ml-4 pl-2 border focus:outline-none focus:ring-2 focus:ring-sky-400' onChange={(e) => handleChange(e.target.value, 'name')} />
 									</div>
 									<div className='grid grid-cols-4'>
 										<label htmlFor='email' className='sm:text-xl text-end'>
 											Email :
 										</label>
-										<input type='email' name='name' id='email' value={email} className='col-span-3 ml-4 pl-2 border focus:outline-none focus:ring-2 focus:ring-sky-400' onChange={(e) => setEmail(e.target.value)} />
+										<input type='email' name='name' id='email' placeholder={email} className='col-span-3 ml-4 pl-2 border focus:outline-none focus:ring-2 focus:ring-sky-400' onChange={(e) => handleChange(e.target.value, 'email')} />
 									</div>
 									<div className='grid grid-cols-4'>
 										<label htmlFor='password' className='sm:text-xl text-end'>
 											Password :
 										</label>
-										<input type='password' name='name' id='password' placeholder={'*****'} className='col-span-3 ml-4 pl-2 border focus:outline-none focus:ring-2 focus:ring-sky-400' onChange={(e) => setPassword(e.target.value)} />
+										<input
+											type='password'
+											name='name'
+											id='password'
+											placeholder={'*****'}
+											className='col-span-3 ml-4 pl-2 border focus:outline-none focus:ring-2 focus:ring-sky-400'
+											onChange={(e) => handleChange(e.target.value, 'password')}
+										/>
 									</div>
 								</form>
 								<button className='py-2 px-16 bg-sky-400 text-white hover:bg-sky-500' onClick={() => handleUpdateProfile()}>
 									Save
 								</button>
 							</div>
-							<div className='flex items-center justify-center'>
-								<button className='bg-red-500 px-6 py-2 rounded-sm hover:bg-red-600 text-white' onClick={() => handleDeleteAccount()}>
-									Delete Account
-								</button>
-							</div>
+						</form>
+						<div className='flex items-center justify-center'>
+							<button className='bg-red-500 px-6 py-2 rounded-sm hover:bg-red-600 text-white' onClick={() => handleDeleteAccount()}>
+								Delete Account
+							</button>
 						</div>
 					</div>
 				</div>

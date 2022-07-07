@@ -19,10 +19,14 @@ export default function DetailEvent() {
 	const [loading, setLoading] = useState(true);
 	const [position, setPosition] = useState([-7.96662, 112.632629]);
 	const [event, setEvent] = useState([]);
+	const [currentTime, setCurrentTime] = useState('');
+	const [dateEvent, setDateEvent] = useState('');
 	const [comment, setComment] = useState([]);
 	const [comment_text, setCommentText] = useState('');
 	const [participant, setParticipant] = useState([]);
-	const [id_participant, setIdParticipant] = useState();
+	const [profile, setProfile] = useState({});
+	const [join, setJoin] = useState(false);
+	const isAfter = moment(dateEvent).isAfter(currentTime);
 
 	const Map = useMemo(
 		() =>
@@ -36,6 +40,27 @@ export default function DetailEvent() {
 		[position]
 	);
 
+	const getUserProfile = async () => {
+		const requestOptions = {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			},
+		};
+
+		fetch('https://infinitysport.site/users', requestOptions)
+			.then((response) => response.json())
+			.then((data) => {
+				setProfile(data.data);
+				console.log(data);
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+			.finally(() => setLoading(false));
+	};
+
 	const getDetail = async () => {
 		const requestConfig = {
 			method: 'GET',
@@ -48,6 +73,8 @@ export default function DetailEvent() {
 			.then((response) => response.json())
 			.then((data) => {
 				setEvent(data.data);
+				setCurrentTime(moment(currentTime).format('LL'));
+				setDateEvent(moment(data.data.date).format('LL'));
 			})
 			.catch((error) => {
 				console.log(error);
@@ -86,11 +113,11 @@ export default function DetailEvent() {
 			},
 		};
 
-		await fetch('https://infinitysport.site/events/participations', requestConfig)
+		await fetch(`https://infinitysport.site/events/${id_event}`, requestConfig)
 			.then((response) => response.json())
 			.then((data) => {
-				setParticipant(data.data);
-				// setIdParticipant(data.data[0].id_participant);
+				console.log(data.data.participant);
+				setParticipant(data.data.participant);
 			})
 			.catch((error) => {
 				console.log(error);
@@ -122,6 +149,7 @@ export default function DetailEvent() {
 	};
 
 	const joinEvent = async () => {
+		setLoading(true);
 		const requestConfig = {
 			method: 'POST',
 			headers: {
@@ -129,7 +157,7 @@ export default function DetailEvent() {
 				Authorization: `Bearer ${token}`,
 			},
 			body: JSON.stringify({
-				id_event,
+				id_event: +id_event,
 			}),
 		};
 
@@ -137,6 +165,7 @@ export default function DetailEvent() {
 			.then((response) => response.json())
 			.then((data) => {
 				if (data.code === '200') {
+					setJoin(true);
 					Swal.fire({
 						title: 'Success',
 						text: `${data.message}`,
@@ -157,10 +186,12 @@ export default function DetailEvent() {
 					text: 'You have already joined this event',
 					icon: 'error',
 				});
-			});
+			})
+			.finally(() => getParticipant());
 	};
 
 	const cancelJoin = async () => {
+		setLoading(true);
 		const requestOptions = {
 			method: 'DELETE',
 			headers: {
@@ -172,14 +203,14 @@ export default function DetailEvent() {
 		await fetch(`https://infinitysport.site/events/participations/${id_event}`, requestOptions)
 			.then((response) => response.json())
 			.then((data) => {
-				// setIdParticipant(null);
-				if ((data.code = '200')) {
+				if (data.code == '200') {
+					setJoin(false);
 					Swal.fire({
 						title: 'Success',
 						text: `${data.message}`,
 						icon: 'success',
 					});
-				} else if (data.code === '400') {
+				} else if (data.code == '400') {
 					Swal.fire({
 						title: 'Failed',
 						text: `${data.message}`,
@@ -193,8 +224,13 @@ export default function DetailEvent() {
 					text: 'Something went wrong',
 					icon: 'error',
 				});
-			});
+			})
+			.finally(() => getParticipant());
 	};
+
+	useEffect(() => {
+		getUserProfile();
+	}, []);
 
 	useEffect(() => {
 		getDetail();
@@ -234,8 +270,8 @@ export default function DetailEvent() {
 									<div className='flex text-2xl space-x-6'>
 										{participant.map((item) => {
 											return (
-												<div key={item.id_participant} className='flex flex-col items-center justify-center'>
-													<CgProfile />
+												<div key={item.id} className='flex flex-col items-center justify-center'>
+													<img src={item.url} alt={item.name} width={'55px'} height={'55px'} className='rounded-full' />
 													<p className='text-base'>{item.name}</p>
 												</div>
 											);
@@ -250,7 +286,7 @@ export default function DetailEvent() {
 												return (
 													<div className='bg-slate-200 hover:bg-slate-300 p-4 space-y-4 rounded-md flex items-center space-x-4' key={item.id_comment}>
 														<div className='flex items-center justify-center'>
-															<Image src={item.avatar} alt={item.name} width={'55px'} height={'55px'} className='rounded-full' />
+															<img src={item.avatar} alt={item.name} width={'55px'} height={'55px'} className='rounded-full' />
 														</div>
 														<div>
 															<p className='font-bold text-xs sm:text-base'>{item.comment}</p>
@@ -261,11 +297,11 @@ export default function DetailEvent() {
 											})}
 										</div>
 									</div>
-									<div className='grid grid-cols-12'>
-										<div className='flex items-center'>
-											<CgProfile className='ml-auto mr-4 text-2xl' />
+									<div className='flex justify-around'>
+										<div className='flex items-center mr-4'>
+											<img src={profile.url} alt={profile.name} width={'55px'} height={'55px'} className='rounded-full' />
 										</div>
-										<textarea name='comment' placeholder='Write your comment' className='col-span-10 border border-slate-300 p-4 resize-none focus:outline-none focus:border-sky-500' onChange={(e) => setCommentText(e.target.value)} />
+										<textarea name='comment' placeholder='Write your comment' className='border border-slate-300 p-4 resize-none focus:outline-none focus:border-sky-500 w-full' onChange={(e) => setCommentText(e.target.value)} />
 										<div className='flex items-center'>
 											<button onClick={() => postComment()}>
 												<RiSendPlaneFill className='text-sky-500 text-2xl ml-4 cursor-pointer' />
@@ -276,8 +312,9 @@ export default function DetailEvent() {
 							</div>
 						</div>
 						<div className='md:p-4 col-span-6 md:col-span-2 row-start-1 md:row-start-auto space-y-4'>
+							{isAfter ? null : <h1 className='bg-red-500/90 px-4 py-1 w-fit text-white rounded-full ml-auto translate-y-3 translate-x-6 select-none text-xs'>Event End</h1>}
 							<div className='flex justify-center'>
-								<Image src={event.image_url} width={200} height={200} alt={event.name} />
+								<img src={event.image_url} width={200} height={200} alt={event.name} />
 							</div>
 							<div className='flex justify-between'>
 								<h1 className='text-xl font-bold'>{event.name}</h1>
@@ -292,10 +329,10 @@ export default function DetailEvent() {
 							<h1>
 								<span className='text-slate-400'>Location : </span> {event.city}
 							</h1>
-							<button className={`bg-sky-500 hover:bg-sky-600 text-white py-2 w-full rounded-md ${id_participant ? 'hidden' : 'block'}`} onClick={() => joinEvent()}>
+							<button className={`bg-sky-500 hover:bg-sky-600 text-white py-2 w-full rounded-md ${join ? 'hidden' : 'block'}`} onClick={() => joinEvent()}>
 								Join
 							</button>
-							<button className={`bg-red-500 hover:bg-red-600 text-white py-2 w-full rounded-md ${id_participant ? 'block' : 'hidden'}`} onClick={() => cancelJoin()}>
+							<button className={`bg-red-500 hover:bg-red-600 text-white py-2 w-full rounded-md ${join ? 'block' : 'hidden'}`} onClick={() => cancelJoin()}>
 								Cancel
 							</button>
 						</div>
