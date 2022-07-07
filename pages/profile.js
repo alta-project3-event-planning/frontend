@@ -44,7 +44,6 @@ export default function Profile() {
 				setUserId(data.data.id);
 				setName(data.data.name);
 				setEmail(data.data.email);
-				console.log(data);
 			})
 			.catch((error) => {
 				console.log(error);

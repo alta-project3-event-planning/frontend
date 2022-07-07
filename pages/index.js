@@ -25,7 +25,6 @@ export default function Home({ data }) {
 		fetch('https://infinitysport.site/events?page=1', requestOptions)
 			.then((response) => response.json())
 			.then((data) => {
-				console.log(data)
 				setCurrentTime(data.currenttime);
 				setDataEvents(data.data);
 			})

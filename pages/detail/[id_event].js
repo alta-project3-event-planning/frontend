@@ -53,7 +53,6 @@ export default function DetailEvent() {
 			.then((response) => response.json())
 			.then((data) => {
 				setProfile(data.data);
-				console.log(data);
 			})
 			.catch((error) => {
 				console.log(error);
@@ -72,7 +71,7 @@ export default function DetailEvent() {
 		await fetch(`https://infinitysport.site/events/${id_event}`, requestConfig)
 			.then((response) => response.json())
 			.then((data) => {
-				setPosition(data.data.location.split(','))
+				setPosition(data.data.location.split(','));
 				setEvent(data.data);
 				setCurrentTime(moment(data.data.currenttime).format('LL'));
 				setDateEvent(moment(data.data.date).format('LL'));
@@ -90,7 +89,7 @@ export default function DetailEvent() {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${token}`,
+				Authorization: `Bearer ${token}`,
 			},
 		};
 
@@ -117,7 +116,6 @@ export default function DetailEvent() {
 		await fetch(`https://infinitysport.site/events/${id_event}`, requestConfig)
 			.then((response) => response.json())
 			.then((data) => {
-				console.log(data.data.participant);
 				setParticipant(data.data.participant);
 			})
 			.catch((error) => {
@@ -232,7 +230,7 @@ export default function DetailEvent() {
 	useEffect(() => {
 		getUserProfile();
 	}, []);
-	
+
 	useEffect(() => {
 		getDetail();
 	}, []);
@@ -245,7 +243,7 @@ export default function DetailEvent() {
 		getParticipant();
 	}, []);
 
-	if (token !== "0") {
+	if (token !== '0') {
 		if (loading) {
 			return <Loading />;
 		} else {
@@ -335,7 +333,10 @@ export default function DetailEvent() {
 								<h1>
 									<span className='text-slate-400'>Location : </span> {event.city}
 								</h1>
-								<button disabled={isAfter ? false : true} className={`bg-sky-500 hover:bg-sky-600 text-white py-2 w-full rounded-md ${isAfter ? 'cursor-pointer' : 'cursor-not-allowed bg-slate-400 hover:bg-slate-400 text-slate-200'} ${join ? 'hidden' : 'block'}`} onClick={() => joinEvent()}>
+								<button
+									disabled={isAfter ? false : true}
+									className={`bg-sky-500 hover:bg-sky-600 text-white py-2 w-full rounded-md ${isAfter ? 'cursor-pointer' : 'cursor-not-allowed bg-slate-400 hover:bg-slate-400 text-slate-200'} ${join ? 'hidden' : 'block'}`}
+									onClick={() => joinEvent()}>
 									Join
 								</button>
 								<button className={`bg-red-500 hover:bg-red-600 text-white py-2 w-full rounded-md ${join ? 'block' : 'hidden'}`} onClick={() => cancelJoin()}>
@@ -348,6 +349,6 @@ export default function DetailEvent() {
 			);
 		}
 	} else {
-		router.push('/login')
+		router.push('/login');
 	}
 }

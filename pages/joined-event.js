@@ -9,9 +9,9 @@ import Sidebar from '../components/Sidebar';
 import { TokenContext } from '../utils/context';
 
 export default function MyEvent() {
-	const {token} = useContext(TokenContext)
+	const { token } = useContext(TokenContext);
 	const [loading, setLoading] = useState(true);
-	const [currTime, setCurrTime] = useState()
+	const [currTime, setCurrTime] = useState();
 	const [myEvents, setMyEvents] = useState([]);
 
 	useEffect(() => {
@@ -23,15 +23,14 @@ export default function MyEvent() {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${token}`
+				Authorization: `Bearer ${token}`,
 			},
 		};
 
 		await fetch('https://infinitysport.site/events/participations', requestOptions)
 			.then((response) => response.json())
 			.then((data) => {
-				console.log(data.data)
-				setCurrTime(data.currenttime)
+				setCurrTime(data.currenttime);
 				setMyEvents(data.data);
 			})
 			.catch((error) => {
@@ -43,25 +42,26 @@ export default function MyEvent() {
 	};
 
 	const deleteParticipant = (id_event) => {
-		setLoading(true)
-        const requestOptions = {
-            method: 'DELETE',
-            headers: {
+		setLoading(true);
+		const requestOptions = {
+			method: 'DELETE',
+			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${token}`
-            },
-        };
-        fetch(`https://infinitysport.site/events/participations/${id_event}`, requestOptions)
-            .then((response) => response.json())
-            .then(() => {
-                Swal.fire('Canceled!', 'Your event has been canceled.', 'success');
-            })
-            .catch(() => {
-                Swal.fire('Error!', 'Something went wrong.', 'error');
-            }).finally(() => {
-                fetchData();
-            })
-    }
+				Authorization: `Bearer ${token}`,
+			},
+		};
+		fetch(`https://infinitysport.site/events/participations/${id_event}`, requestOptions)
+			.then((response) => response.json())
+			.then(() => {
+				Swal.fire('Canceled!', 'Your event has been canceled.', 'success');
+			})
+			.catch(() => {
+				Swal.fire('Error!', 'Something went wrong.', 'error');
+			})
+			.finally(() => {
+				fetchData();
+			});
+	};
 
 	const handleCancel = (id_event) => {
 		Swal.fire({
@@ -74,7 +74,7 @@ export default function MyEvent() {
 			confirmButtonText: 'Yes, delete it!',
 		}).then((result) => {
 			if (result.isConfirmed) {
-				deleteParticipant(id_event)
+				deleteParticipant(id_event);
 			}
 		});
 	};
@@ -90,11 +90,13 @@ export default function MyEvent() {
 						{myEvents.map((item) => {
 							return (
 								<div className='grid grid-cols-1 sm:grid-cols-5 gap-5' key={item.id_participant}>
-									<div className='flex justify-center items-center'><img src={item.url} alt="image" /></div>
+									<div className='flex justify-center items-center'>
+										<img src={item.url} alt='image' />
+									</div>
 									<div className='col-span-3 flex flex-col justify-center items-center sm:items-start'>
 										<div className='flex justify-between w-full'>
 											<h1 className='text-2xl font-bold'>{item.name}</h1>
-											{item.time < currTime && (<div className='bg-white border-red-500 border-2 rotate-6 self-end p-1 rounded-sm font-bold px-9 text-red-500'>Event End</div>)}
+											{item.time < currTime && <div className='bg-white border-red-500 border-2 rotate-6 self-end p-1 rounded-sm font-bold px-9 text-red-500'>Event End</div>}
 										</div>
 										<p>
 											<span className='text-slate-400'>Hosted By </span>
@@ -113,7 +115,16 @@ export default function MyEvent() {
 										</p>
 										<div className='mt-4 flex flex-col items-center sm:items-start'>
 											<h1 className='text-slate-400'>About this event</h1>
-											<p>{item.detail.split('\n').map((item, key) => { return <span key={key}>{item}<br/></span>})}</p>
+											<p>
+												{item.detail.split('\n').map((item, key) => {
+													return (
+														<span key={key}>
+															{item}
+															<br />
+														</span>
+													);
+												})}
+											</p>
 										</div>
 									</div>
 									<div className='flex flex-col justify-center items-center space-y-4'>
